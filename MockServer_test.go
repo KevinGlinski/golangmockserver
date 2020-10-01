@@ -8,21 +8,20 @@ import (
 	"testing"
 )
 
-
-func TestMockHttpServer_BasicCall(t *testing.T) {
+func TestMockServer_BasicCall(t *testing.T) {
 
 	//Setup
-	mockServer := NewServer([]*MockHttpServerRequest{
+	mockServer := NewMockServer([]*MockServerRequest{
 		{
-			Uri:      "/foo",
-			Method:   "GET",
+			URI:    "/foo",
+			Method: "GET",
 		},
 	})
 	defer mockServer.Close()
 
 	//Make request to the mock server
-	request, _ := http.NewRequest("GET", mockServer.BaseUrl() + "/foo", nil)
-	client := &http.Client {}
+	request, _ := http.NewRequest("GET", mockServer.BaseURL()+"/foo", nil)
+	client := &http.Client{}
 
 	response, _ := client.Do(request)
 
@@ -30,40 +29,39 @@ func TestMockHttpServer_BasicCall(t *testing.T) {
 	assert.Equal(t, 200, response.StatusCode)
 }
 
+func TestMockServer_NotFoundUri(t *testing.T) {
 
-func TestMockHttpServer_NotFoundUri(t *testing.T) {
-
-	mockServer := NewServer([]*MockHttpServerRequest{
+	mockServer := NewMockServer([]*MockServerRequest{
 		{
-			Uri:      "/foo",
-			Method:   "GET",
+			URI:    "/foo",
+			Method: "GET",
 		},
 	})
 	defer mockServer.Close()
 
-	request, _ := http.NewRequest("GET", mockServer.BaseUrl() + "/bar", nil)
-	client := &http.Client {}
+	request, _ := http.NewRequest("GET", mockServer.BaseURL()+"/bar", nil)
+	client := &http.Client{}
 
 	response, _ := client.Do(request)
 
 	assert.Equal(t, 404, response.StatusCode)
 }
 
-func TestMockHttpServer_RequestBodyMatching(t *testing.T) {
+func TestMockServer_RequestBodyMatching(t *testing.T) {
 
-	mockServer := NewServer([]*MockHttpServerRequest{
+	mockServer := NewMockServer([]*MockServerRequest{
 		{
-			Uri:      "/foo",
-			Method:   "GET",
-			Response: &MockHttpServerResponse{
+			URI:    "/foo",
+			Method: "GET",
+			Response: &MockServerResponse{
 				StatusCode: 500,
 			},
 		},
 		{
-			Uri:      "/foo",
-			Method:   "GET",
-			Body: []byte("hello world"),
-			Response: &MockHttpServerResponse{
+			URI:    "/foo",
+			Method: "GET",
+			Body:   []byte("hello world"),
+			Response: &MockServerResponse{
 				StatusCode: 201,
 			},
 		},
@@ -71,42 +69,39 @@ func TestMockHttpServer_RequestBodyMatching(t *testing.T) {
 	defer mockServer.Close()
 
 	bodyData := bytes.NewReader([]byte("hello world"))
-	request, _ := http.NewRequest("GET", mockServer.BaseUrl() + "/foo", bodyData)
-	client := &http.Client {}
+	request, _ := http.NewRequest("GET", mockServer.BaseURL()+"/foo", bodyData)
+	client := &http.Client{}
 
 	response, _ := client.Do(request)
 
 	assert.Equal(t, 201, response.StatusCode)
 }
 
+func TestMockServer_HeaderMatch(t *testing.T) {
 
-
-func TestMockHttpServer_HeaderMatch(t *testing.T) {
-
-	mockServer := NewServer([]*MockHttpServerRequest{
+	mockServer := NewMockServer([]*MockServerRequest{
 		{
-			Uri:      "/foo",
-			Method:   "GET",
+			URI:    "/foo",
+			Method: "GET",
 			Headers: map[string]string{
 				"Authorization": "basic .*",
 			},
-			Response: &MockHttpServerResponse{
+			Response: &MockServerResponse{
 				StatusCode: 200,
 			},
 		},
 	})
 	defer mockServer.Close()
 
-	request, _ := http.NewRequest("GET", mockServer.BaseUrl() + "/foo", nil)
+	request, _ := http.NewRequest("GET", mockServer.BaseURL()+"/foo", nil)
 
-	client := &http.Client {}
+	client := &http.Client{}
 
 	response, _ := client.Do(request)
 
 	assert.Equal(t, 404, response.StatusCode)
 
-
-	request, _ = http.NewRequest("GET", mockServer.BaseUrl() + "/foo", nil)
+	request, _ = http.NewRequest("GET", mockServer.BaseURL()+"/foo", nil)
 	request.Header.Add("Authorization", "basic adfljkasdlfj")
 
 	response, _ = client.Do(request)
@@ -114,13 +109,13 @@ func TestMockHttpServer_HeaderMatch(t *testing.T) {
 
 }
 
-func TestMockHttpServer_ResponseHeaders(t *testing.T) {
+func TestMockServer_ResponseHeaders(t *testing.T) {
 
-	mockServer := NewServer([]*MockHttpServerRequest{
+	mockServer := NewMockServer([]*MockServerRequest{
 		{
-			Uri:      "/foo",
-			Method:   "GET",
-			Response: &MockHttpServerResponse{
+			URI:    "/foo",
+			Method: "GET",
+			Response: &MockServerResponse{
 				Headers: map[string]string{
 					"foo": "bar",
 				},
@@ -129,8 +124,8 @@ func TestMockHttpServer_ResponseHeaders(t *testing.T) {
 	})
 	defer mockServer.Close()
 
-	request, _ := http.NewRequest("GET", mockServer.BaseUrl() + "/foo", nil)
-	client := &http.Client {}
+	request, _ := http.NewRequest("GET", mockServer.BaseURL()+"/foo", nil)
+	client := &http.Client{}
 
 	response, _ := client.Do(request)
 
@@ -138,9 +133,9 @@ func TestMockHttpServer_ResponseHeaders(t *testing.T) {
 	assert.Equal(t, "bar", response.Header.Get("foo"))
 }
 
-func TestMockHttpServer_toBytes(t *testing.T) {
+func TestMockServer_toBytes(t *testing.T) {
 
-	type testStruct struct{
+	type testStruct struct {
 		Foo string `json:"foo"`
 	}
 
@@ -148,32 +143,29 @@ func TestMockHttpServer_toBytes(t *testing.T) {
 		data interface{}
 	}
 	tests := []struct {
-		name   string
+		name string
 		data interface{}
-		want   []byte
+		want []byte
 	}{
 		{
 			"bytes",
 			[]byte("abcd"),
 			[]byte("abcd"),
-
 		},
 		{
 			"string",
 			"abcd",
 			[]byte("abcd"),
-
 		},
 		{
 			"struct",
 			testStruct{"bar"},
 			[]byte("{\"foo\":\"bar\"}"),
-
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &MockHttpServer{}
+			s := &MockServer{}
 			if got := s.toBytes(tt.data); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("toBytes() = %v, want %v", got, tt.want)
 			}

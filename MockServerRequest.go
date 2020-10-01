@@ -1,9 +1,9 @@
 package golangmockserver
 
-//Mocked request to the server
-type MockHttpServerRequest struct{
+//MockServerRequest is a mocked request to the server
+type MockServerRequest struct {
 	//The URI to match
-	Uri string
+	URI string
 	//The HTTP method to match (GET, PUT, POST, etc)
 	Method string
 	//Optional: The Body to match against
@@ -12,14 +12,15 @@ type MockHttpServerRequest struct{
 	Headers map[string]string
 
 	//Optional: Response to send from the matched request
-	Response *MockHttpServerResponse
+	Response *MockServerResponse
 }
 
-type MockHttpServerResponse struct {
+//MockServerResponse is the response from a mocked request.
+type MockServerResponse struct {
 	//Optional: HTTP status code to return, default is 200
 	StatusCode int
 	//Optional: body to return, default is nil
-	Body       interface{}
+	Body interface{}
 	//Optional: Additional headers to return, default is none
 	Headers map[string]string
 }

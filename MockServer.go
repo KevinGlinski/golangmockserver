@@ -1,6 +1,7 @@
 // golangmockserver
 
 //Golang MockServer is a wrapper around httptest.Server and provides helpers to mock out HTTP request/responses
+
 package golangmockserver
 
 import (
@@ -12,9 +13,9 @@ import (
 	"regexp"
 )
 
-//Creates a new Mock server with mocked requests
-func NewMockHttpServer(mockedRequests []*MockHttpServerRequest) *MockHttpServer {
-	server := &MockHttpServer{
+//NewMockServer creates a new Mock server with mocked requests
+func NewMockServer(mockedRequests []*MockServerRequest) *MockServer {
+	server := &MockServer{
 		requests: mockedRequests,
 	}
 
@@ -27,41 +28,39 @@ func NewMockHttpServer(mockedRequests []*MockHttpServerRequest) *MockHttpServer 
 		alreadyRegistered := false
 
 		for _, uri := range registeredUris {
-			if uri == request.Uri {
+			if uri == request.URI {
 				alreadyRegistered = true
 			}
 		}
 
-		if !alreadyRegistered{
-			handler.HandleFunc(request.Uri, server.handleRequest)
-			registeredUris = append(registeredUris, request.Uri)
+		if !alreadyRegistered {
+			handler.HandleFunc(request.URI, server.handleRequest)
+			registeredUris = append(registeredUris, request.URI)
 		}
 	}
 
-	server.server = httptest.NewMockHttpServer(handler)
+	server.server = httptest.NewServer(handler)
 
 	return server
 }
 
-// Mock http server
-type MockHttpServer struct {
-	requests []*MockHttpServerRequest
-	server  *httptest.Server
-
+// MockServer is a mock http server
+type MockServer struct {
+	requests []*MockServerRequest
+	server   *httptest.Server
 }
 
-//Shuts down the mock http server
-func (s *MockHttpServer) Close() {
+//Close shuts down the mock http server
+func (s *MockServer) Close() {
 	s.server.Close()
 }
 
-//Gets the localhost base url to call
-func (s *MockHttpServer) BaseUrl() string{
+//BaseURL gets the localhost base url to call
+func (s *MockServer) BaseURL() string {
 	return s.server.URL
 }
 
-
-func (s *MockHttpServer) toBytes(data interface{}) []byte {
+func (s *MockServer) toBytes(data interface{}) []byte {
 	switch data.(type) {
 	case string:
 		return []byte(data.(string))
@@ -73,12 +72,12 @@ func (s *MockHttpServer) toBytes(data interface{}) []byte {
 	}
 }
 
-func (s *MockHttpServer) doHeadersMatch(request *MockHttpServerRequest, r *http.Request) bool{
+func (s *MockServer) doHeadersMatch(request *MockServerRequest, r *http.Request) bool {
 	//match headers
 	if request.Headers != nil {
 		for k, v := range request.Headers {
 			headerValue := r.Header.Get(k)
-			if !regexp.MustCompile(v).MatchString(headerValue){
+			if !regexp.MustCompile(v).MatchString(headerValue) {
 				return false
 			}
 		}
@@ -87,17 +86,15 @@ func (s *MockHttpServer) doHeadersMatch(request *MockHttpServerRequest, r *http.
 	return true
 }
 
-
-func (s *MockHttpServer) handleRequest(w http.ResponseWriter, r *http.Request) {
+func (s *MockServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 
 	requestdata, _ := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 
 	for _, request := range s.requests {
-		if request.Uri == r.URL.Path &&
+		if request.URI == r.URL.Path &&
 			request.Method == r.Method &&
 			((request.Body == nil && len(requestdata) == 0) || (request.Body != nil && reflect.DeepEqual(s.toBytes(request.Body), requestdata))) {
-
 
 			if !s.doHeadersMatch(request, r) {
 				continue
@@ -106,21 +103,21 @@ func (s *MockHttpServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 			if request.Response == nil {
 				_, _ = w.Write(nil)
 				return
-			}else{
-				if request.Response.StatusCode != 0 {
-					w.WriteHeader(request.Response.StatusCode)
-				}
-
-				if request.Response.Headers != nil {
-					for k, v := range request.Response.Headers {
-						w.Header().Add(k,v)
-					}
-				}
-
-				_, _ = w.Write(s.toBytes(request.Response.Body))
-				return
 			}
 
+			if request.Response.StatusCode != 0 {
+				w.WriteHeader(request.Response.StatusCode)
+			}
+
+			if request.Response.Headers != nil {
+				for k, v := range request.Response.Headers {
+					w.Header().Add(k, v)
+				}
+			}
+
+			_, _ = w.Write(s.toBytes(request.Response.Body))
+
+			return
 
 		}
 	}
