@@ -11,7 +11,7 @@ see Examples_test.go for example usage
 
 ```
 // Create a new mock http server and pass in the methods you want it to match
-mockServer := NewMockHttpServer([]*MockHttpServerRequest{
+mockServer := NewMockServer([]*MockServerRequest{
     {
         Uri:      "/foo",
         Method:   "GET",
