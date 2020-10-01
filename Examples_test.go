@@ -2,12 +2,10 @@ package golangmockserver
 
 import (
 	"bytes"
-	"github.com/stretchr/testify/assert"
 	"net/http"
-	"testing"
 )
 
-func TestMockHttpServer_BasicCall(t *testing.T) {
+func ExampleMockHttpServer__BasicCall() {
 
 	//Setup
 	mockServer := NewMockHttpServer([]*MockHttpServerRequest{
@@ -22,14 +20,12 @@ func TestMockHttpServer_BasicCall(t *testing.T) {
 	request, _ := http.NewRequest("GET", mockServer.BaseUrl() + "/foo", nil)
 	client := &http.Client {}
 
-	response, _ := client.Do(request)
+	_, _ = client.Do(request)
 
-	//validate responses
-	assert.Equal(t, 200, response.StatusCode)
 }
 
 
-func TestMockHttpServer_NotFoundUri(t *testing.T) {
+func ExampleMockHttpServer__NotFoundUri() {
 
 	mockServer := NewMockHttpServer([]*MockHttpServerRequest{
 		{
@@ -42,12 +38,10 @@ func TestMockHttpServer_NotFoundUri(t *testing.T) {
 	request, _ := http.NewRequest("GET", mockServer.BaseUrl() + "/bar", nil)
 	client := &http.Client {}
 
-	response, _ := client.Do(request)
-
-	assert.Equal(t, 404, response.StatusCode)
+	client.Do(request)
 }
 
-func TestMockHttpServer_RequestBodyMatching(t *testing.T) {
+func ExampleMockHttpServer_RequestBodyMatching() {
 
 	mockServer := NewMockHttpServer([]*MockHttpServerRequest{
 		{
@@ -72,14 +66,12 @@ func TestMockHttpServer_RequestBodyMatching(t *testing.T) {
 	request, _ := http.NewRequest("GET", mockServer.BaseUrl() + "/foo", bodyData)
 	client := &http.Client {}
 
-	response, _ := client.Do(request)
-
-	assert.Equal(t, 201, response.StatusCode)
+	client.Do(request)
 }
 
 
 
-func TestMockHttpServer_HeaderMatch(t *testing.T) {
+func ExampleMockHttpServer_HeaderMatch() {
 
 	mockServer := NewMockHttpServer([]*MockHttpServerRequest{
 		{
@@ -99,20 +91,16 @@ func TestMockHttpServer_HeaderMatch(t *testing.T) {
 
 	client := &http.Client {}
 
-	response, _ := client.Do(request)
-
-	assert.Equal(t, 404, response.StatusCode)
-
+	client.Do(request)
+	//returns 404
 
 	request, _ = http.NewRequest("GET", mockServer.BaseUrl() + "/foo", nil)
 	request.Header.Add("Authorization", "basic adfljkasdlfj")
-
-	response, _ = client.Do(request)
-	assert.Equal(t, 200, response.StatusCode)
+	//returns 200
 
 }
 
-func TestMockHttpServer_ResponseHeaders(t *testing.T) {
+func ExampleMockHttpServer_ResponseHeaders() {
 
 	mockServer := NewMockHttpServer([]*MockHttpServerRequest{
 		{
@@ -130,8 +118,6 @@ func TestMockHttpServer_ResponseHeaders(t *testing.T) {
 	request, _ := http.NewRequest("GET", mockServer.BaseUrl() + "/foo", nil)
 	client := &http.Client {}
 
-	response, _ := client.Do(request)
+	client.Do(request)
 
-	assert.Equal(t, 200, response.StatusCode)
-	assert.Equal(t, "bar", response.Header.Get("foo"))
 }
