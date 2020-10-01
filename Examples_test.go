@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func ExampleMockHttpServer__BasicCall() {
+func ExampleF__BasicCall() {
 
 	//Setup
 	mockServer := NewMockHttpServer([]*MockHttpServerRequest{
@@ -25,7 +25,7 @@ func ExampleMockHttpServer__BasicCall() {
 }
 
 
-func ExampleMockHttpServer__NotFoundUri() {
+func ExampleF__NotFoundUri() {
 
 	mockServer := NewMockHttpServer([]*MockHttpServerRequest{
 		{
@@ -41,7 +41,7 @@ func ExampleMockHttpServer__NotFoundUri() {
 	client.Do(request)
 }
 
-func ExampleMockHttpServer_RequestBodyMatching() {
+func ExampleF_RequestBodyMatching() {
 
 	mockServer := NewMockHttpServer([]*MockHttpServerRequest{
 		{
@@ -71,7 +71,7 @@ func ExampleMockHttpServer_RequestBodyMatching() {
 
 
 
-func ExampleMockHttpServer_HeaderMatch() {
+func ExampleF_HeaderMatch() {
 
 	mockServer := NewMockHttpServer([]*MockHttpServerRequest{
 		{
@@ -100,7 +100,7 @@ func ExampleMockHttpServer_HeaderMatch() {
 
 }
 
-func ExampleMockHttpServer_ResponseHeaders() {
+func ExampleF_ResponseHeaders() {
 
 	mockServer := NewMockHttpServer([]*MockHttpServerRequest{
 		{
