@@ -5,7 +5,8 @@ import (
 	"net/http"
 )
 
-func ExampleF__BasicCall() {
+//Basic example matches the route GET /foo and returns a 200
+func ExampleNewMockHttpServer() {
 
 	//Setup
 	mockServer := NewMockHttpServer([]*MockHttpServerRequest{
@@ -24,8 +25,8 @@ func ExampleF__BasicCall() {
 
 }
 
-
-func ExampleF__NotFoundUri() {
+//A 404 is returned when there aren't any matching URIs
+func ExampleNewMockHttpServer_uriNotFound() {
 
 	mockServer := NewMockHttpServer([]*MockHttpServerRequest{
 		{
@@ -39,9 +40,11 @@ func ExampleF__NotFoundUri() {
 	client := &http.Client {}
 
 	client.Do(request)
+	//Returns a 404
 }
 
-func ExampleF_RequestBodyMatching() {
+
+func ExampleNewMockHttpServer_requestBodyMatching() {
 
 	mockServer := NewMockHttpServer([]*MockHttpServerRequest{
 		{
@@ -70,8 +73,8 @@ func ExampleF_RequestBodyMatching() {
 }
 
 
-
-func ExampleF_HeaderMatch() {
+//This example show how a match based on a header only returns 200 when the header matches.  The first request responds with a 404 because the header isn't set.
+func ExampleNewMockHttpServer_headerMatch() {
 
 	mockServer := NewMockHttpServer([]*MockHttpServerRequest{
 		{
@@ -100,7 +103,8 @@ func ExampleF_HeaderMatch() {
 
 }
 
-func ExampleF_ResponseHeaders() {
+//In this example the foo response header is returned.
+func ExampleNewMockHttpServer_responseHeaders() {
 
 	mockServer := NewMockHttpServer([]*MockHttpServerRequest{
 		{

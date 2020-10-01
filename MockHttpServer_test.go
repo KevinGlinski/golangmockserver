@@ -12,7 +12,7 @@ import (
 func TestMockHttpServer_BasicCall(t *testing.T) {
 
 	//Setup
-	mockServer := NewMockHttpServer([]*MockHttpServerRequest{
+	mockServer := NewServer([]*MockHttpServerRequest{
 		{
 			Uri:      "/foo",
 			Method:   "GET",
@@ -33,7 +33,7 @@ func TestMockHttpServer_BasicCall(t *testing.T) {
 
 func TestMockHttpServer_NotFoundUri(t *testing.T) {
 
-	mockServer := NewMockHttpServer([]*MockHttpServerRequest{
+	mockServer := NewServer([]*MockHttpServerRequest{
 		{
 			Uri:      "/foo",
 			Method:   "GET",
@@ -51,7 +51,7 @@ func TestMockHttpServer_NotFoundUri(t *testing.T) {
 
 func TestMockHttpServer_RequestBodyMatching(t *testing.T) {
 
-	mockServer := NewMockHttpServer([]*MockHttpServerRequest{
+	mockServer := NewServer([]*MockHttpServerRequest{
 		{
 			Uri:      "/foo",
 			Method:   "GET",
@@ -83,7 +83,7 @@ func TestMockHttpServer_RequestBodyMatching(t *testing.T) {
 
 func TestMockHttpServer_HeaderMatch(t *testing.T) {
 
-	mockServer := NewMockHttpServer([]*MockHttpServerRequest{
+	mockServer := NewServer([]*MockHttpServerRequest{
 		{
 			Uri:      "/foo",
 			Method:   "GET",
@@ -116,7 +116,7 @@ func TestMockHttpServer_HeaderMatch(t *testing.T) {
 
 func TestMockHttpServer_ResponseHeaders(t *testing.T) {
 
-	mockServer := NewMockHttpServer([]*MockHttpServerRequest{
+	mockServer := NewServer([]*MockHttpServerRequest{
 		{
 			Uri:      "/foo",
 			Method:   "GET",

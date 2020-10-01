@@ -1,3 +1,6 @@
+// golangmockserver
+
+//Golang MockServer is a wrapper around httptest.Server and provides helpers to mock out HTTP request/responses
 package golangmockserver
 
 import (
@@ -9,14 +12,7 @@ import (
 	"regexp"
 )
 
-
-type MockHttpServer struct {
-	requests []*MockHttpServerRequest
-	server  *httptest.Server
-
-}
-
-//Creates a new Mock server
+//Creates a new Mock server with mocked requests
 func NewMockHttpServer(mockedRequests []*MockHttpServerRequest) *MockHttpServer {
 	server := &MockHttpServer{
 		requests: mockedRequests,
@@ -42,11 +38,17 @@ func NewMockHttpServer(mockedRequests []*MockHttpServerRequest) *MockHttpServer 
 		}
 	}
 
-	server.server = httptest.NewServer(handler)
+	server.server = httptest.NewMockHttpServer(handler)
 
 	return server
 }
 
+// Mock http server
+type MockHttpServer struct {
+	requests []*MockHttpServerRequest
+	server  *httptest.Server
+
+}
 
 //Shuts down the mock http server
 func (s *MockHttpServer) Close() {
