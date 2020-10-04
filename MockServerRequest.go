@@ -13,6 +13,13 @@ type MockServerRequest struct {
 
 	//Optional: Response to send from the matched request
 	Response *MockServerResponse
+
+	invokeCount int
+}
+
+// Invoke count returns the number of times this request was invoked
+func (m *MockServerRequest) InvokeCount() int {
+	return m.invokeCount
 }
 
 //MockServerResponse is the response from a mocked request.

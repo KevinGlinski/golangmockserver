@@ -60,6 +60,11 @@ func (s *MockServer) BaseURL() string {
 	return s.server.URL
 }
 
+//Requests gets the configured requests
+func (s *MockServer) Requests() []*MockServerRequest {
+	return s.requests
+}
+
 func (s *MockServer) toBytes(data interface{}) []byte {
 	switch data.(type) {
 	case string:
@@ -99,6 +104,8 @@ func (s *MockServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 			if !s.doHeadersMatch(request, r) {
 				continue
 			}
+
+			request.invokeCount++
 
 			if request.Response == nil {
 				_, _ = w.Write(nil)

@@ -27,6 +27,8 @@ func TestMockServer_BasicCall(t *testing.T) {
 
 	//validate responses
 	assert.Equal(t, 200, response.StatusCode)
+
+	assert.Equal(t, 1, mockServer.Requests()[0].InvokeCount())
 }
 
 func TestMockServer_NotFoundUri(t *testing.T) {
