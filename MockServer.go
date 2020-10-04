@@ -114,7 +114,7 @@ func (s *MockServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 	for _, request := range s.requests {
 		if request.URI == r.URL.Path &&
 			request.Method == r.Method &&
-			((request.Body == nil && len(requestdata) == 0) || (request.Body != nil && reflect.DeepEqual(s.toBytes(request.Body), requestdata))) {
+			(request.Body == nil || (request.Body != nil && reflect.DeepEqual(s.toBytes(request.Body), requestdata))) {
 
 			if !s.doHeadersMatch(request, r) {
 				continue

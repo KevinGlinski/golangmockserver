@@ -8,6 +8,10 @@ import (
 	"testing"
 )
 
+type testStruct struct {
+	Foo string `json:"foo"`
+}
+
 func TestMockServer_BasicCall(t *testing.T) {
 
 	//Setup
@@ -21,6 +25,31 @@ func TestMockServer_BasicCall(t *testing.T) {
 
 	//Make request to the mock server
 	request, _ := http.NewRequest("GET", mockServer.BaseURL()+"/foo", nil)
+	client := &http.Client{}
+
+	response, _ := client.Do(request)
+
+	//validate responses
+	assert.Equal(t, 200, response.StatusCode)
+
+	assert.Equal(t, 1, mockServer.Requests()[0].InvokeCount())
+}
+
+
+func TestMockServer_PUTWithAnyBody(t *testing.T) {
+
+	//Setup
+	mockServer := NewMockServer([]*MockServerRequest{
+		{
+			URI:    "/foo",
+			Method: "PUT",
+		},
+	})
+	defer mockServer.Close()
+
+	//Make request to the mock server
+	bodyData := bytes.NewReader([]byte("hello world"))
+	request, _ := http.NewRequest("PUT", mockServer.BaseURL()+"/foo", bodyData)
 	client := &http.Client{}
 
 	response, _ := client.Do(request)
@@ -52,13 +81,6 @@ func TestMockServer_NotFoundUri(t *testing.T) {
 func TestMockServer_RequestBodyMatching(t *testing.T) {
 
 	mockServer := NewMockServer([]*MockServerRequest{
-		{
-			URI:    "/foo",
-			Method: "GET",
-			Response: &MockServerResponse{
-				StatusCode: 500,
-			},
-		},
 		{
 			URI:    "/foo",
 			Method: "GET",
@@ -170,9 +192,7 @@ func TestMockServer_ResponseHeaders(t *testing.T) {
 
 func TestMockServer_toBytes(t *testing.T) {
 
-	type testStruct struct {
-		Foo string `json:"foo"`
-	}
+
 
 	type args struct {
 		data interface{}
