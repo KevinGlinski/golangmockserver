@@ -111,6 +111,39 @@ func TestMockServer_HeaderMatch(t *testing.T) {
 
 }
 
+
+
+func TestMockServer_QueryStringParamsMatch(t *testing.T) {
+
+	mockServer := NewMockServer([]*MockServerRequest{
+		{
+			URI:    "/foo",
+			Method: "GET",
+			QueryParameters: map[string]string{
+				"page": "1",
+			},
+			Response: &MockServerResponse{
+				StatusCode: 200,
+			},
+		},
+	})
+	defer mockServer.Close()
+
+	request, _ := http.NewRequest("GET", mockServer.BaseURL()+"/foo", nil)
+
+	client := &http.Client{}
+
+	response, _ := client.Do(request)
+
+	assert.Equal(t, 404, response.StatusCode)
+
+	request, _ = http.NewRequest("GET", mockServer.BaseURL()+"/foo?page=1", nil)
+
+	response, _ = client.Do(request)
+	assert.Equal(t, 200, response.StatusCode)
+
+}
+
 func TestMockServer_ResponseHeaders(t *testing.T) {
 
 	mockServer := NewMockServer([]*MockServerRequest{

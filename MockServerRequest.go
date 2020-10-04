@@ -11,6 +11,9 @@ type MockServerRequest struct {
 	//Optional: Any headers to match against.  Header values can be a regex
 	Headers map[string]string
 
+	//Optional: Any querystring parameters to match against.  Parameter values can be a regex
+	QueryParameters map[string]string
+
 	//Optional: Response to send from the matched request
 	Response *MockServerResponse
 

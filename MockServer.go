@@ -91,6 +91,21 @@ func (s *MockServer) doHeadersMatch(request *MockServerRequest, r *http.Request)
 	return true
 }
 
+
+func (s *MockServer) doQueryParametersMatch(request *MockServerRequest, r *http.Request) bool {
+	//match query parameters
+	if request.QueryParameters != nil {
+		for k, v := range request.QueryParameters {
+			paramValue := r.FormValue(k)
+			if !regexp.MustCompile(v).MatchString(paramValue) {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
 func (s *MockServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 
 	requestdata, _ := ioutil.ReadAll(r.Body)
@@ -102,6 +117,10 @@ func (s *MockServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 			((request.Body == nil && len(requestdata) == 0) || (request.Body != nil && reflect.DeepEqual(s.toBytes(request.Body), requestdata))) {
 
 			if !s.doHeadersMatch(request, r) {
+				continue
+			}
+
+			if !s.doQueryParametersMatch(request, r) {
 				continue
 			}
 
