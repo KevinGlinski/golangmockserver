@@ -131,14 +131,14 @@ func (s *MockServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			if request.Response.StatusCode != 0 {
-				w.WriteHeader(request.Response.StatusCode)
-			}
-
 			if request.Response.Headers != nil {
 				for k, v := range request.Response.Headers {
 					w.Header().Add(k, v)
 				}
+			}
+
+			if request.Response.StatusCode != 0 {
+				w.WriteHeader(request.Response.StatusCode)
 			}
 
 			_, _ = w.Write(s.toBytes(request.Response.Body))
