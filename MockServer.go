@@ -124,6 +124,10 @@ func (s *MockServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 
+			if request.MaxMatchCount > 0 && request.invokeCount >= request.MaxMatchCount {
+				continue
+			}
+
 			request.invokeCount++
 
 			if request.Response == nil {

@@ -17,6 +17,9 @@ type MockServerRequest struct {
 	//Optional: Response to send from the matched request
 	Response *MockServerResponse
 
+	//Optional: Maximum number of times to match this request
+	MaxMatchCount int
+
 	invokeCount int
 }
 

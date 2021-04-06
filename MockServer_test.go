@@ -134,6 +134,47 @@ func TestMockServer_HeaderMatch(t *testing.T) {
 }
 
 
+func TestMockServer_MaximumMatch(t *testing.T) {
+
+	mockServer := NewMockServer([]*MockServerRequest{
+		{
+			URI:    "/foo",
+			Method: "GET",
+			MaxMatchCount: 1,
+			Response: &MockServerResponse{
+				StatusCode: 500,
+			},
+		},
+		{
+			URI:    "/foo",
+			Method: "GET",
+			Response: &MockServerResponse{
+				StatusCode: 200,
+			},
+		},
+	})
+	defer mockServer.Close()
+
+	request, _ := http.NewRequest("GET", mockServer.BaseURL()+"/foo", nil)
+
+	client := &http.Client{}
+
+	response, _ := client.Do(request)
+
+	assert.Equal(t, 500, response.StatusCode)
+
+	request, _ = http.NewRequest("GET", mockServer.BaseURL()+"/foo", nil)
+	response, _ = client.Do(request)
+	assert.Equal(t, 200, response.StatusCode)
+
+
+	request, _ = http.NewRequest("GET", mockServer.BaseURL()+"/foo", nil)
+	response, _ = client.Do(request)
+	assert.Equal(t, 200, response.StatusCode)
+
+}
+
+
 
 func TestMockServer_QueryStringParamsMatch(t *testing.T) {
 
